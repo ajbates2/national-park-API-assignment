@@ -1,7 +1,7 @@
 'use strict';
 
-const apiKey = ''; 
-const searchURL = '';
+const apiKey = 'Nw5BZbawshaiSBK93hWHUPOBRVpDe45WdwXrVb8p'; 
+const searchURL = 'https://developer.nps.gov/api/v1/parks';
 
 
 function formatQueryParams(params) {
@@ -13,11 +13,17 @@ function formatQueryParams(params) {
 function displayResults(responseJson) {
   console.log(responseJson);
   $('#results-list').empty();
-  for (let i = 0; i < responseJson.items.length; i++){
+  for (let i = 0; i < responseJson.data.length; i++){
     $('#results-list').append(
-      `<li><h3>${responseJson.items[i].snippet.title}</h3>
-      <p>${responseJson.items[i].snippet.description}</p>
-      <img src='${responseJson.items[i].snippet.thumbnails.default.url}'>
+      `<li>
+        <h3>${responseJson.data[i].fullName}</h3>
+        <p>${responseJson.data[i].description}</p>
+        <p><a href="${responseJson.data[i].url}" target="_blank">website</a></p>
+        <address>
+          <p>${responseJson.data[i].addresses[1].line1}</p>
+          <p>${responseJson.data[i].addresses[1].city},
+           ${responseJson.data[i].addresses[1].stateCode}
+            ${responseJson.data[i].addresses[1].postalCode}</p>
       </li>`
     )}; 
   $('#results').removeClass('hidden');
@@ -25,11 +31,9 @@ function displayResults(responseJson) {
 
 function getResource(query, maxResults=10) {
   const params = {
-    key: apiKey,
-    q: query,
-    part: 'snippet',
-    maxResults,
-    type: 'video'
+    api_key: apiKey,
+    stateCode: query,
+    limit: maxResults,
   };
   const queryString = formatQueryParams(params)
   const url = searchURL + '?' + queryString;
@@ -44,8 +48,8 @@ function getResource(query, maxResults=10) {
       throw new Error(response.statusText);
     })
     .then(responseJson => displayResults(responseJson))
-    .catch(err => {
-      $('#js-error-message').text(`Something went wrong: ${err.message}`);
+    .catch(error => {
+      $('#js-error-message').text(`Something went wrong: ${error.message}`);
     });
 }
 
